@@ -86,10 +86,15 @@ def create_course_group_matrix(course_list, dataframe):
             matrix.at[row['GroupName'], course] = "Yes" if course in courses_in_group else "No"
     
     # Add a column to count how many courses match for each group
-    matrix['Match Count'] = (matrix == "Yes").sum(axis=1)
+    matrix['Matched Count'] = (matrix == "Yes").sum(axis=1)
+    total_courses = len(course_list)
+    
+ 
+    # Add a percentage column showing the ratio of matched courses
+    matrix['Percentage'] = (matrix['Matched Count'] / total_courses * 100).round(10).astype(str) + '%'
     
     # Sort the matrix by the match count in descending order
-    matrix_sorted = matrix.sort_values(by='Match Count', ascending=False)
+    matrix_sorted = matrix.sort_values(by='Matched Count', ascending=False)
     
     return matrix_sorted
 
