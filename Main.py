@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="NU Course Search App", page_icon=":books:", layout="wide")
 st.image("logos_new.png", width=400)
 st.title("Search Courses by Group")
-st.write("This tool helps you find the optimal course block for a set of selected courses. Simply choose your required courses, and the tool will analyze them to provide the best matching block, ensuring an efficient and well-organized schedule. With our recent update, it now supports AI groups,")
+st.write("This tool helps you find the optimal course block for a set of selected courses. Simply choose your required courses, and the tool will analyze them to provide the best matching block, ensuring an efficient and well-organized schedule. With our recent update, it now supports AI groups.")
 file_path = "CS Groups.xlsx"
 
 if 'course_input' not in st.session_state:
@@ -72,12 +72,12 @@ if os.path.exists(file_path):
             def highlight_cells(val):
                 color = 'background-color: lightgreen' if val == "Yes" else 'background-color: lightcoral' if val == "No" else ''
                 return color
-            
-            # Apply the style to the matrix
-            styled_matrix = course_group_matrix.style.applymap(highlight_cells)
-            
-            # Display the styled matrix
-            st.dataframe(styled_matrix)
+
+            # Apply the style to the matrix and stretch it to full width
+            styled_matrix = course_group_matrix.style.applymap(highlight_cells).set_properties(**{'width': '100%'})
+
+            # Display the styled matrix as a full-width table
+            st.write(styled_matrix.to_html(), unsafe_allow_html=True)
 
             st.subheader("Visualized Results:")
             # Optional: Add some visualization or further data exploration here if needed
