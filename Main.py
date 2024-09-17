@@ -39,38 +39,49 @@ if os.path.exists(file_path):
     display_clickable_courses(data)
 
     st.text_input("Selected Courses (comma-separated):", value=st.session_state['course_input'], key='course_input', disabled=False)
-    
-    def search_courses(course_list, dataframe):
+
+    def create_course_group_matrix(course_list, dataframe):
         course_list = [course.strip().upper() for course in course_list.split(',')]
-        results = []
+        group_names = dataframe['GroupName'].unique()
+        
+        # Create an empty DataFrame for the matrix
+        matrix = pd.DataFrame(index=group_names, columns=course_list)
+        
+        # Populate the matrix
         for index, row in dataframe.iterrows():
-            courses = row['Description (COURSES)'].split()
-            ratio = sum(course in courses for course in course_list) / len(course_list)
-            if ratio > 0:
-                results.append({'GroupName': row['GroupName'], 'Ratio': ratio})
-        return pd.DataFrame(results)
+            courses_in_group = row['Description (COURSES)'].split()
+            for course in course_list:
+                matrix.at[row['GroupName'], course] = "Yes" if course in courses_in_group else "No"
+        
+        # Add a column for the match count (how many courses are "Yes" in each row)
+        matrix['Match Count'] = (matrix == "Yes").sum(axis=1)
+        
+        # Sort the matrix by the match count in descending order
+        matrix_sorted = matrix.sort_values(by='Match Count', ascending=False)
+        
+        return matrix_sorted
 
     if st.session_state['course_input']:
-        results_df = search_courses(st.session_state['course_input'], data)
+        # Create the course-group matrix
+        course_group_matrix = create_course_group_matrix(st.session_state['course_input'], data)
 
-        if not results_df.empty:
-            sorted_df = results_df.sort_values(by="Ratio", ascending=False)
-            st.subheader("Search Results:")
-            st.dataframe(sorted_df)
+        if not course_group_matrix.empty:
+            st.subheader("Course-Group Matrix (Sorted by Matches):")
+            
+            # Function to apply color formatting based on the "Yes"/"No" values
+            def highlight_cells(val):
+                color = 'background-color: lightgreen' if val == "Yes" else 'background-color: lightcoral' if val == "No" else ''
+                return color
+            
+            # Apply the style to the matrix
+            styled_matrix = course_group_matrix.style.applymap(highlight_cells)
+            
+            # Display the styled matrix
+            st.dataframe(styled_matrix)
 
             st.subheader("Visualized Results:")
-
-            # Set the height of the chart dynamically based on the number of rows
-            num_rows = len(sorted_df)
-            fig, ax = plt.subplots(figsize=(10, num_rows * 0.5)) 
-
-            ax.barh(sorted_df['GroupName'], sorted_df['Ratio'], color='skyblue')
-            ax.set_xlabel("Match Ratio")
-            ax.set_ylabel("GroupName")
-            ax.set_title("Course Match Ratios by Group")
-            plt.gca().invert_yaxis()
-
-            st.pyplot(fig)
+            # Optional: Add some visualization or further data exploration here if needed
+            
         else:
             st.warning("No matching groups found for the selected courses.")
 else:
