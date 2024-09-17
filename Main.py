@@ -74,10 +74,14 @@ if os.path.exists(file_path):
                 return color
 
             # Apply the style to the matrix and stretch it to full width
-            styled_matrix = course_group_matrix.style.applymap(highlight_cells).set_properties(**{'width': '100%'})
+            styled_matrix = course_group_matrix.style.applymap(highlight_cells)
 
-            # Display the styled matrix as a full-width table
-            st.write(styled_matrix.to_html(), unsafe_allow_html=True)
+            # Dynamically set the height based on the number of rows
+            num_rows = course_group_matrix.shape[0]
+            table_height = 40 + num_rows * 35  # Adjust based on row height
+            
+            # Display the styled matrix with dynamic height
+            st.dataframe(styled_matrix, height=table_height)
 
             st.subheader("Visualized Results:")
             # Optional: Add some visualization or further data exploration here if needed
