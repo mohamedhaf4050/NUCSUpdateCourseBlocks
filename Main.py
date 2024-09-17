@@ -13,7 +13,7 @@ st.write("""
     the best matching block, ensuring an efficient and well-organized schedule. 
     With our recent update, it now supports AI groups.
 """)
-file_path = "CS Groups.xlsx"
+file_path = "CS_groups_Fall24.xlsx"
 
 # Check if session state has 'course_input', if not initialize it
 if 'course_input' not in st.session_state:
